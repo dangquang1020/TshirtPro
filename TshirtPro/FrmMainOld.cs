@@ -8,11 +8,10 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
-using Newtonsoft.Json.Linq;
 
 namespace TshirtPro
 {
-    public partial class FrmMain : Form
+    public partial class FrmMainOld : Form
     {
         string itemXPath = "//*[@id='articleTileList']/div";
         string domain = "https://www.spreadshirt.com/";
@@ -30,7 +29,7 @@ namespace TshirtPro
         BackgroundWorker bwDownloadImage;
         ManualResetEvent pause;
 
-        public FrmMain()
+        public FrmMainOld()
         {
             InitializeComponent();
 
@@ -38,16 +37,12 @@ namespace TshirtPro
             pause = new ManualResetEvent(true);
             dsCollection = new DesignCollection();
             dataExport = new DataExport();
-            bwCollectImage = new BackgroundWorker
-            {
-                WorkerReportsProgress = true,
-                WorkerSupportsCancellation = true
-            };
-            bwDownloadImage = new BackgroundWorker
-            {
-                WorkerReportsProgress = true,
-                WorkerSupportsCancellation = true
-            };
+            bwCollectImage = new BackgroundWorker();
+            bwCollectImage.WorkerReportsProgress = true;
+            bwCollectImage.WorkerSupportsCancellation = true;
+            bwDownloadImage = new BackgroundWorker();
+            bwDownloadImage.WorkerReportsProgress = true;
+            bwDownloadImage.WorkerSupportsCancellation = true;
 
             Load += FrmMain_Load;
             bwCollectImage.RunWorkerCompleted += BwCollectImage_RunWorkerCompleted;
@@ -60,22 +55,6 @@ namespace TshirtPro
             btnOpen.Click += BtnOpen_Click;
             btnStart.Click += BtnStart_Click;
             btnPause.Click += BtnPause_Click;
-
-            LoadConfigFile();
-        }
-
-        private void LoadConfigFile()
-        {
-            var config = File.ReadAllText("appConfig.json");
-            try
-            {
-                var jObject = JObject.Parse(config);
-                
-            }
-            catch (Exception)
-            {
-                throw;
-            }
         }
 
         private void BtnPause_Click(object sender, EventArgs e)
@@ -151,6 +130,13 @@ namespace TshirtPro
         {
             dataExport.CategoryIds = txtCategoryIds.Text;
             dataExport.ItemProducts = txtProductRef.Text;
+            dataExport.ItemPrices = txtPrice.Text;
+            dataExport.ItemColors = txtItemColor.Text;
+            dataExport.Sides = txtSlide.Text;
+            dataExport.Position = txtProsition.Text;
+            dataExport.Description = txtDescription.Text;
+            dataExport.SaleGoal = txtSaleGoal.Text;
+            dataExport.DayLimit = txtDayLimit.Text;
         }
 
         private void ProcessControl(bool isRunning)

@@ -5,8 +5,8 @@ namespace TshirtPro
 {
     public class Category
     {
-        public string category_id { get; set; }
-        public string category_name { get; set; }
+        public string Category_id { get; set; }
+        public string Category_name { get; set; }
     }
 
     public class RootObject
