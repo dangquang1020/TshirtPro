@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassCollection.cs" />
+    <Compile Include="DataExportJson.cs" />
     <Compile Include="DataExport.cs" />
     <Compile Include="DesignCollection.cs" />
     <Compile Include="FrmMain.cs">

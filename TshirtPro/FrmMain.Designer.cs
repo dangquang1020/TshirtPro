@@ -47,8 +47,10 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label11 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.txtProductRef = new System.Windows.Forms.TextBox();
-            this.txtCategoryIds = new System.Windows.Forms.TextBox();
+            this.txtTZLCategory3 = new System.Windows.Forms.TextBox();
+            this.txtTZLCategory2 = new System.Windows.Forms.TextBox();
+            this.txtTZLCategory1 = new System.Windows.Forms.TextBox();
+            this.txtCategory = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.txtDirectoryPath = new System.Windows.Forms.TextBox();
@@ -60,13 +62,14 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.lvImage = new System.Windows.Forms.ListView();
+            this.colImageUrl = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnOpen = new System.Windows.Forms.Button();
             this.btnPause = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
-            this.lvImage = new System.Windows.Forms.ListView();
-            this.colImageUrl = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.cbbTzlCategory = new System.Windows.Forms.ComboBox();
+            this.lvKeyword = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.statusStrip.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -222,11 +225,14 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.cbbTzlCategory);
+            this.groupBox2.Controls.Add(this.lvKeyword);
+            this.groupBox2.Controls.Add(this.btnOpen);
             this.groupBox2.Controls.Add(this.label11);
             this.groupBox2.Controls.Add(this.label9);
-            this.groupBox2.Controls.Add(this.txtProductRef);
-            this.groupBox2.Controls.Add(this.txtCategoryIds);
+            this.groupBox2.Controls.Add(this.txtTZLCategory3);
+            this.groupBox2.Controls.Add(this.txtTZLCategory2);
+            this.groupBox2.Controls.Add(this.txtTZLCategory1);
+            this.groupBox2.Controls.Add(this.txtCategory);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox2.Location = new System.Drawing.Point(5, 157);
             this.groupBox2.Name = "groupBox2";
@@ -256,19 +262,33 @@
             this.label9.Tag = "";
             this.label9.Text = "Category";
             // 
-            // txtProductRef
+            // txtTZLCategory3
             // 
-            this.txtProductRef.Location = new System.Drawing.Point(163, 43);
-            this.txtProductRef.Name = "txtProductRef";
-            this.txtProductRef.Size = new System.Drawing.Size(201, 20);
-            this.txtProductRef.TabIndex = 0;
+            this.txtTZLCategory3.Location = new System.Drawing.Point(163, 95);
+            this.txtTZLCategory3.Name = "txtTZLCategory3";
+            this.txtTZLCategory3.Size = new System.Drawing.Size(217, 20);
+            this.txtTZLCategory3.TabIndex = 0;
             // 
-            // txtCategoryIds
+            // txtTZLCategory2
             // 
-            this.txtCategoryIds.Location = new System.Drawing.Point(163, 17);
-            this.txtCategoryIds.Name = "txtCategoryIds";
-            this.txtCategoryIds.Size = new System.Drawing.Size(201, 20);
-            this.txtCategoryIds.TabIndex = 0;
+            this.txtTZLCategory2.Location = new System.Drawing.Point(163, 69);
+            this.txtTZLCategory2.Name = "txtTZLCategory2";
+            this.txtTZLCategory2.Size = new System.Drawing.Size(217, 20);
+            this.txtTZLCategory2.TabIndex = 0;
+            // 
+            // txtTZLCategory1
+            // 
+            this.txtTZLCategory1.Location = new System.Drawing.Point(163, 43);
+            this.txtTZLCategory1.Name = "txtTZLCategory1";
+            this.txtTZLCategory1.Size = new System.Drawing.Size(217, 20);
+            this.txtTZLCategory1.TabIndex = 0;
+            // 
+            // txtCategory
+            // 
+            this.txtCategory.Location = new System.Drawing.Point(163, 17);
+            this.txtCategory.Name = "txtCategory";
+            this.txtCategory.Size = new System.Drawing.Size(217, 20);
+            this.txtCategory.TabIndex = 0;
             // 
             // groupBox1
             // 
@@ -291,7 +311,7 @@
             // 
             // btnBrowse
             // 
-            this.btnBrowse.Location = new System.Drawing.Point(289, 90);
+            this.btnBrowse.Location = new System.Drawing.Point(305, 87);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(75, 23);
             this.btnBrowse.TabIndex = 3;
@@ -303,14 +323,14 @@
             this.txtDirectoryPath.Enabled = false;
             this.txtDirectoryPath.Location = new System.Drawing.Point(15, 90);
             this.txtDirectoryPath.Name = "txtDirectoryPath";
-            this.txtDirectoryPath.Size = new System.Drawing.Size(268, 20);
+            this.txtDirectoryPath.Size = new System.Drawing.Size(284, 20);
             this.txtDirectoryPath.TabIndex = 0;
             // 
             // txtKeyWord
             // 
             this.txtKeyWord.Location = new System.Drawing.Point(163, 19);
             this.txtKeyWord.Name = "txtKeyWord";
-            this.txtKeyWord.Size = new System.Drawing.Size(120, 20);
+            this.txtKeyWord.Size = new System.Drawing.Size(136, 20);
             this.txtKeyWord.TabIndex = 0;
             // 
             // nuImgPerDir
@@ -327,10 +347,10 @@
             0,
             0});
             this.nuImgPerDir.Name = "nuImgPerDir";
-            this.nuImgPerDir.Size = new System.Drawing.Size(120, 20);
+            this.nuImgPerDir.Size = new System.Drawing.Size(136, 20);
             this.nuImgPerDir.TabIndex = 2;
             this.nuImgPerDir.Value = new decimal(new int[] {
-            200,
+            100,
             0,
             0,
             0});
@@ -349,7 +369,7 @@
             0,
             0});
             this.nuPageNum.Name = "nuPageNum";
-            this.nuPageNum.Size = new System.Drawing.Size(120, 20);
+            this.nuPageNum.Size = new System.Drawing.Size(136, 20);
             this.nuPageNum.TabIndex = 2;
             this.nuPageNum.Value = new decimal(new int[] {
             10,
@@ -407,9 +427,28 @@
             this.panel4.Size = new System.Drawing.Size(441, 469);
             this.panel4.TabIndex = 10;
             // 
+            // lvImage
+            // 
+            this.lvImage.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colImageUrl});
+            this.lvImage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lvImage.FullRowSelect = true;
+            this.lvImage.GridLines = true;
+            this.lvImage.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.lvImage.Location = new System.Drawing.Point(0, 66);
+            this.lvImage.Name = "lvImage";
+            this.lvImage.Size = new System.Drawing.Size(441, 403);
+            this.lvImage.TabIndex = 8;
+            this.lvImage.UseCompatibleStateImageBehavior = false;
+            this.lvImage.View = System.Windows.Forms.View.Details;
+            // 
+            // colImageUrl
+            // 
+            this.colImageUrl.Text = "Đường dẫn hình ảnh";
+            this.colImageUrl.Width = 833;
+            // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.btnOpen);
             this.panel1.Controls.Add(this.btnPause);
             this.panel1.Controls.Add(this.btnStart);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
@@ -424,11 +463,11 @@
             this.btnOpen.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.btnOpen.ImageIndex = 3;
             this.btnOpen.ImageList = this.imglist;
-            this.btnOpen.Location = new System.Drawing.Point(241, 9);
+            this.btnOpen.Location = new System.Drawing.Point(15, 69);
             this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(90, 51);
+            this.btnOpen.Size = new System.Drawing.Size(83, 46);
             this.btnOpen.TabIndex = 4;
-            this.btnOpen.Text = "Mở Thư Mục";
+            this.btnOpen.Text = "Đọc File";
             this.btnOpen.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnOpen.UseVisualStyleBackColor = true;
             // 
@@ -458,34 +497,28 @@
             this.btnStart.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnStart.UseVisualStyleBackColor = true;
             // 
-            // lvImage
+            // lvKeyword
             // 
-            this.lvImage.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.colImageUrl});
-            this.lvImage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lvImage.FullRowSelect = true;
-            this.lvImage.GridLines = true;
-            this.lvImage.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            this.lvImage.Location = new System.Drawing.Point(0, 66);
-            this.lvImage.Name = "lvImage";
-            this.lvImage.Size = new System.Drawing.Size(441, 403);
-            this.lvImage.TabIndex = 8;
-            this.lvImage.UseCompatibleStateImageBehavior = false;
-            this.lvImage.View = System.Windows.Forms.View.Details;
+            this.lvKeyword.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lvKeyword.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1});
+            this.lvKeyword.FullRowSelect = true;
+            this.lvKeyword.GridLines = true;
+            this.lvKeyword.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.lvKeyword.Location = new System.Drawing.Point(6, 121);
+            this.lvKeyword.MultiSelect = false;
+            this.lvKeyword.Name = "lvKeyword";
+            this.lvKeyword.Size = new System.Drawing.Size(374, 180);
+            this.lvKeyword.TabIndex = 9;
+            this.lvKeyword.UseCompatibleStateImageBehavior = false;
+            this.lvKeyword.View = System.Windows.Forms.View.Details;
             // 
-            // colImageUrl
+            // columnHeader1
             // 
-            this.colImageUrl.Text = "Đường dẫn hình ảnh";
-            this.colImageUrl.Width = 833;
-            // 
-            // cbbTzlCategory
-            // 
-            this.cbbTzlCategory.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.cbbTzlCategory.FormattingEnabled = true;
-            this.cbbTzlCategory.Location = new System.Drawing.Point(163, 69);
-            this.cbbTzlCategory.Name = "cbbTzlCategory";
-            this.cbbTzlCategory.Size = new System.Drawing.Size(201, 21);
-            this.cbbTzlCategory.TabIndex = 2;
+            this.columnHeader1.Text = "Đường dẫn hình ảnh";
+            this.columnHeader1.Width = 370;
             // 
             // FrmMain
             // 
@@ -538,8 +571,8 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.TextBox txtProductRef;
-        private System.Windows.Forms.TextBox txtCategoryIds;
+        private System.Windows.Forms.TextBox txtTZLCategory1;
+        private System.Windows.Forms.TextBox txtCategory;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button btnBrowse;
         private System.Windows.Forms.TextBox txtDirectoryPath;
@@ -557,7 +590,10 @@
         private System.Windows.Forms.Button btnOpen;
         private System.Windows.Forms.Button btnPause;
         private System.Windows.Forms.Button btnStart;
-        private System.Windows.Forms.ComboBox cbbTzlCategory;
+        private System.Windows.Forms.TextBox txtTZLCategory3;
+        private System.Windows.Forms.TextBox txtTZLCategory2;
+        private System.Windows.Forms.ListView lvKeyword;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
     }
 }
 

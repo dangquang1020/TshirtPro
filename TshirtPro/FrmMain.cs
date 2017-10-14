@@ -9,6 +9,7 @@ using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace TshirtPro
 {
@@ -22,8 +23,10 @@ namespace TshirtPro
         int maxPage = 10;
         int imgPerDir = 100;
         bool isPause = false;
+        int currentIndex = 0;
 
-        DataExport dataExport;
+        List<KeywordCategory> categories;
+        DataExportJson dataExportJson;
         DesignCollection dsCollection;
         HtmlWeb web;
         BackgroundWorker bwCollectImage;
@@ -34,10 +37,11 @@ namespace TshirtPro
         {
             InitializeComponent();
 
+            categories = new List<KeywordCategory>();
             web = new HtmlWeb();
             pause = new ManualResetEvent(true);
             dsCollection = new DesignCollection();
-            dataExport = new DataExport();
+            dataExportJson = new DataExportJson();
             bwCollectImage = new BackgroundWorker
             {
                 WorkerReportsProgress = true,
@@ -60,22 +64,6 @@ namespace TshirtPro
             btnOpen.Click += BtnOpen_Click;
             btnStart.Click += BtnStart_Click;
             btnPause.Click += BtnPause_Click;
-
-            LoadConfigFile();
-        }
-
-        private void LoadConfigFile()
-        {
-            var config = File.ReadAllText("appConfig.json");
-            try
-            {
-                var jObject = JObject.Parse(config);
-                
-            }
-            catch (Exception)
-            {
-                throw;
-            }
         }
 
         private void BtnPause_Click(object sender, EventArgs e)
@@ -115,48 +103,97 @@ namespace TshirtPro
 
         private void BtnStart_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtKeyWord.Text))
+            if (categories.Count > 0)
             {
-                MessageBox.Show("Vui lòng nhập từ khóa tìm kiếm", "Thiếu thông tin", MessageBoxButtons.OK);
+                RunDownloadList(0);
             }
             else
             {
-                bool isContinue = true;
-                if (lvImage.Items.Count > 0)
+                if (string.IsNullOrEmpty(txtKeyWord.Text))
                 {
-                    if (MessageBox.Show("Xóa dữ liệu trên danh sách và tiếp tục ?", "Xóa danh sách", MessageBoxButtons.YesNo) != DialogResult.Yes)
-                    {
-                        isContinue = false;
-                    }
+                    MessageBox.Show("Vui lòng nhập từ khóa tìm kiếm", "Thiếu thông tin", MessageBoxButtons.OK);
                 }
-
-                if(isContinue)
+                else
                 {
-                    InitDataExport();
-                    InitNewSearch();
-                    keyWord = txtKeyWord.Text.Replace(" ", "+");
-                    maxPage = int.Parse(nuPageNum.Value.ToString());
-                    saveToDirectory = txtDirectoryPath.Text;
-                    imgPerDir = int.Parse(nuImgPerDir.Value.ToString());
-                    lblStatus.ForeColor = Color.Blue;
-                    lblStatus.Text = "Đang chạy ...";
+                    bool isContinue = true;
+                    if (lvImage.Items.Count > 0)
+                    {
+                        if (MessageBox.Show("Xóa dữ liệu trên danh sách và tiếp tục ?", "Xóa danh sách", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                        {
+                            isContinue = false;
+                        }
+                    }
 
-                    ProcessControl(true);
-                    bwCollectImage.RunWorkerAsync();
+                    if (isContinue)
+                    {
+                        InitDataExport();
+                        InitNewSearch();
+                        keyWord = txtKeyWord.Text.Replace(" ", "+");
+                        maxPage = int.Parse(nuPageNum.Value.ToString());
+                        saveToDirectory = txtDirectoryPath.Text;
+                        imgPerDir = int.Parse(nuImgPerDir.Value.ToString());
+                        lblStatus.ForeColor = Color.Blue;
+                        lblStatus.Text = "Đang chạy ...";
+
+                        ProcessControl(true);
+                        bwCollectImage.RunWorkerAsync();
+                    }
                 }
             }
         }
 
+        private void RunDownloadList(int index)
+        {
+            bool isContinue = true;
+            currentIndex = index;
+            if (currentIndex == 0 && lvImage.Items.Count > 0)
+            {
+                if (MessageBox.Show("Xóa dữ liệu trên danh sách và tiếp tục ?", "Xóa danh sách", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                {
+                    isContinue = false;
+                }
+            }
+
+            if (!isContinue)
+            {
+                return;
+            }
+            
+            txtCategory.Text = categories[currentIndex].Category;
+            txtKeyWord.Text = categories[currentIndex].Keyword;
+            string dirPath = Application.StartupPath + Path.DirectorySeparatorChar + categories[currentIndex].Keyword;
+            txtDirectoryPath.Text = dirPath;
+            if (!Directory.Exists(dirPath))
+            {
+                Directory.CreateDirectory(dirPath);
+            }
+
+            InitDataExport();
+            InitNewSearch();
+            keyWord = txtKeyWord.Text.Replace(" ", "+");
+            maxPage = int.Parse(nuPageNum.Value.ToString());
+            saveToDirectory = txtDirectoryPath.Text;
+            imgPerDir = int.Parse(nuImgPerDir.Value.ToString());
+            lblStatus.ForeColor = Color.Blue;
+            lblStatus.Text = "Đang chạy ...";
+            lvKeyword.Items[currentIndex].ForeColor = Color.Blue;
+            lvKeyword.Items[currentIndex].Selected = true;
+
+            ProcessControl(true);
+            bwCollectImage.RunWorkerAsync();
+        }
+
         private void InitDataExport()
         {
-            dataExport.CategoryIds = txtCategoryIds.Text;
-            dataExport.ItemProducts = txtProductRef.Text;
+            dataExportJson.Category = txtCategory.Text;
         }
 
         private void ProcessControl(bool isRunning)
         {
             btnStart.Enabled = !isRunning;
             btnPause.Enabled = isRunning;
+            btnBrowse.Enabled = !isRunning;
+            btnOpen.Enabled = !isRunning;
             txtKeyWord.Enabled = !isRunning;
             nuPageNum.Enabled = !isRunning;
             pbProgress.Enabled = !isRunning;
@@ -164,9 +201,36 @@ namespace TshirtPro
 
         private void BtnOpen_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(saveToDirectory))
+            using (var ofd = new OpenFileDialog())
             {
-                Process.Start(saveToDirectory);
+                ofd.InitialDirectory = Application.StartupPath;
+                ofd.Filter = "txt files (*.txt)|*.txt";
+                ofd.FilterIndex = 1;
+                ofd.RestoreDirectory = true;
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        lvKeyword.Items.Clear();
+                        categories.Clear();
+                        string[] lines = File.ReadAllLines(ofd.FileName);
+                        foreach(string line in lines)
+                        {
+                            string[] arr = line.Split(';');
+                            if (arr.Length > 1)
+                            {
+                                KeywordCategory cate = new KeywordCategory(arr[0].Trim(), arr[1].Trim(), line);
+                                categories.Add(cate);
+                                lvKeyword.Items.Add(line);
+                            }                            
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
+                    }
+                }
             }
         }
 
@@ -195,7 +259,7 @@ namespace TshirtPro
 
                 if(dsCollection.TotalImage <= imgPerDir)
                 {
-                    SaveImageAndExportExcel(saveToDirectory, 0, dsCollection.TotalImage - 1, keyWordFormat);
+                    SaveImageAndExportExcel(saveToDirectory, 0, dsCollection.TotalImage, keyWordFormat);
                 }
                 else
                 {
@@ -271,7 +335,7 @@ namespace TshirtPro
                     {
                         client.Headers.Add("user-agent", "Only a test!");
                         client.DownloadFile(item.Url, fullPath);
-                        dataExport.AddItem(item.FileName, item.Name);
+                        dataExportJson.AddItem(item);
                         dsCollection.SuccessCount++;
                         item.Success = true;
                     }
@@ -286,7 +350,7 @@ namespace TshirtPro
                 }
             }
 
-            dataExport.ExportToExcel(directory, imgPerDir, dirName);
+            dataExportJson.ExportToJson(directory, imgPerDir, dirName);
         }
 
         private void BwDownloadImage_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -294,6 +358,11 @@ namespace TshirtPro
             pbProgress.Value = CalculatePercent(e.ProgressPercentage, dsCollection.TotalImage);
             txtSuccess.Text = dsCollection.SuccessCount.ToString();
             txtError.Text = dsCollection.ErrorCount.ToString();
+
+            if (lvKeyword.Items.Count > 0)
+            {
+                lvKeyword.Items[currentIndex].Text = string.Format("{0} === {1}/{2}", categories[currentIndex].OriginText, dsCollection.SuccessCount + dsCollection.ErrorCount, dsCollection.TotalImage);
+            }
 
             int index = e.ProgressPercentage - 1;
             lvImage.EnsureVisible(index);
@@ -313,6 +382,12 @@ namespace TshirtPro
             lblStatus.ForeColor = Color.Green;
             lblStatus.Text = "Đã tải xong.";
             ProcessControl(false);
+
+            currentIndex++;
+            if (currentIndex < categories.Count)
+            {
+                RunDownloadList(currentIndex);
+            }
         }
 
         private void ShowError(string message)
@@ -367,6 +442,11 @@ namespace TshirtPro
         {
             txtPagePercent.Text = string.Format("{0}/{1}", e.ProgressPercentage.ToString(), maxPage);
             txtImageCount.Text = dsCollection.TotalImage.ToString();
+            
+            if (lvKeyword.Items.Count > 0)
+            {
+                lvKeyword.Items[currentIndex].Text = string.Format("{0} === 0/{1}", categories[currentIndex].OriginText, dsCollection.TotalImage);
+            }
             
             pbProgress.Value = CalculatePercent(e.ProgressPercentage, maxPage);
 

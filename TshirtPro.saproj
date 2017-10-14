@@ -14,7 +14,7 @@
             <Debugging />
         </Options>
         <ApplicationName>ImageDownloader</ApplicationName>
-        <Destination DestinationFileName="..\..\Tshirt\ImageDownloader.exe" />
+        <Destination DestinationFileName="..\..\Tshirt\ImageDownloader-2.0.exe" />
         <Assemblies>
             <Assembly AssemblyName="TshirtPro, Culture=neutral, PublicKeyToken=null">
                 <Merging>
@@ -214,6 +214,38 @@
                 <Merging />
             </Assembly>
             <Assembly AssemblyName="SMDiagnostics, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+                <Merging />
+            </Assembly>
+            <Assembly AssemblyName="Newtonsoft.Json, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+                <Merging Merge="0">
+                    <Pruning />
+                    <Obfuscation>
+                        <Exclusion />
+                    </Obfuscation>
+                    <ControlFlow />
+                    <MemberRefsProxy />
+                    <ResourcesCompression />
+                </Merging>
+                <Embedding Embed="1" />
+            </Assembly>
+            <Assembly AssemblyName="System.Xml.Linq, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+                <Merging />
+            </Assembly>
+            <Assembly AssemblyName="SmartTroubleshooting, Culture=neutral, PublicKeyToken=7f465a1c156d4d57">
+                <Merging>
+                    <Obfuscation>
+                        <Exclusion />
+                    </Obfuscation>
+                </Merging>
+            </Assembly>
+            <Assembly AssemblyName="SmartExceptionsCore, Culture=neutral, PublicKeyToken=7f465a1c156d4d57">
+                <Merging>
+                    <Obfuscation>
+                        <Exclusion />
+                    </Obfuscation>
+                </Merging>
+            </Assembly>
+            <Assembly AssemblyName="Microsoft.VisualC, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
                 <Merging />
             </Assembly>
         </Assemblies>

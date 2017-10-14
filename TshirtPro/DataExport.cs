@@ -2,14 +2,13 @@
 using System;
 using System.Data;
 using System.IO;
-using System.Threading;
 
 namespace TshirtPro
 {
     public class DataExport
     {
         public DataTable dtExport = new DataTable();
-        public string CategoryIds { get; set; }
+        public string Category { get; set; }
         public string ItemProducts { get; set; }
         public string ItemPrices { get; set; }
         public string ItemColors { get; set; }
@@ -33,7 +32,7 @@ namespace TshirtPro
             dtExport.Columns.Add("DaysLimit", typeof(string));
             dtExport.Columns.Add("InMarketplace", typeof(string));
             dtExport.Columns.Add("AutoRelaunch", typeof(string));
-            dtExport.Columns.Add("CategoryIds", typeof(string));
+            dtExport.Columns.Add("Category", typeof(string));
             dtExport.Columns.Add("ItemsPrices", typeof(string));
             dtExport.Columns.Add("ItemsProduct", typeof(string));
             dtExport.Columns.Add("ItemsColors", typeof(string));
@@ -56,13 +55,13 @@ namespace TshirtPro
             dr["Name"] = name;
             dr["Description"] = Description;
             dr["Draft"] = "false";
-            dr["Slug"] = GenerateSlug(name);
+            dr["Slug"] = GenerateSlug(Category, name);
             dr["SaleGoal"] = SaleGoal;
             dr["HideGoal"] = "false";
             dr["DaysLimit"] = DayLimit;
             dr["InMarketplace"] = "true";
             dr["AutoRelaunch"] = "true";
-            dr["CategoryIds"] = CategoryIds;
+            dr["Category"] = Category;
             dr["ItemsPrices"] = ItemPrices;
             dr["ItemsProduct"] = ItemProducts;
             dr["ItemsColors"] = ItemColors;
@@ -73,31 +72,15 @@ namespace TshirtPro
             dtExport.Rows.Add(dr);
         }
 
-        private string GenerateSlug(string name)
+        private string GenerateSlug(string category, string name)
         {
-            string slug = Globals.RemoveSpecialCharacter(name);
-            int maxIndex = slug.Length > 40 ? 40 : slug.Length;
-            slug = slug.Substring(0, maxIndex);
-            slug += GetRandomizeString(9);
+            string slug = string.Format("{0}-{1}", category, name);
+            slug = Globals.RemoveSpecialCharacter(slug);
+            //int maxIndex = slug.Length > 40 ? 40 : slug.Length;
+            //slug = slug.Substring(0, maxIndex);
+            slug += "-" + Globals.GetRandomizeString(6);
 
             return slug.ToLower();
-        }
-
-        private string GetRandomizeString(int length)
-        {
-            long lastTimeStamp = DateTime.UtcNow.Ticks;
-            long original, newValue;
-            do
-            {
-                original = lastTimeStamp;
-                long now = DateTime.UtcNow.Ticks;
-                newValue = Math.Max(now, original + 1);
-            } while (Interlocked.CompareExchange
-                         (ref lastTimeStamp, newValue, original) != original);
-
-            string result = newValue.ToString();
-            result = result.PadRight(9);
-            return result;
         }
 
         public void ExportToExcel(string directory, int rowCount, string dirName)

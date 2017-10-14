@@ -128,7 +128,7 @@ namespace TshirtPro
 
         private void InitDataExport()
         {
-            dataExport.CategoryIds = txtCategoryIds.Text;
+            dataExport.Category = txtCategoryIds.Text;
             dataExport.ItemProducts = txtProductRef.Text;
             dataExport.ItemPrices = txtPrice.Text;
             dataExport.ItemColors = txtItemColor.Text;
