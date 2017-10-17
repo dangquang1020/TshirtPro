@@ -60,6 +60,7 @@ namespace TshirtPro
             bwDownloadImage.RunWorkerCompleted += BwDownloadImage_RunWorkerCompleted;
             bwDownloadImage.ProgressChanged += BwDownloadImage_ProgressChanged;
             bwDownloadImage.DoWork += BwDownloadImage_DoWork;
+
             btnBrowse.Click += BtnBrowse_Click;
             btnOpen.Click += BtnOpen_Click;
             btnStart.Click += BtnStart_Click;

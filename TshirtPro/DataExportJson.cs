@@ -31,9 +31,9 @@ namespace TshirtPro
         {
             string slug = string.Format("{0}-{1}", category, name);
             slug = Globals.RemoveSpecialCharacter(slug);
-            //int maxIndex = slug.Length > 40 ? 40 : slug.Length;
-            //slug = slug.Substring(0, maxIndex);
-            slug += "-" + Globals.GetRandomizeString(6);
+            int maxIndex = slug.Length > 40 ? 40 : slug.Length;
+            slug = slug.Substring(0, maxIndex);
+            slug += "-" + Globals.GetRandomizeString(9);
 
             return slug.ToLower();
         }
