@@ -11,9 +11,10 @@ namespace TshirtPro
     {
         public List<JsonItem> ListItem;
         public string Category { get; set; }
-        public DataExportJson()
+        public DataExportJson(string cate)
         {
             ListItem = new List<JsonItem>();
+            Category = cate;
         }
 
         public void ClearData()
@@ -33,7 +34,7 @@ namespace TshirtPro
             slug = Globals.RemoveSpecialCharacter(slug);
             int maxIndex = slug.Length > 40 ? 40 : slug.Length;
             slug = slug.Substring(0, maxIndex);
-            slug += "-" + Globals.GetRandomizeString(9);
+            slug += "-" + RandomizeString.RandomString(9);
 
             return slug.ToLower();
         }

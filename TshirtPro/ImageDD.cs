@@ -13,20 +13,20 @@ using System.Windows.Forms;
 
 namespace TshirtPro
 {
-    public class ImageDD
+    public class ImageDD : IDisposable
     {
         string itemXPath = "//*[@id='articleTileList']/div";
         string domain = "https://www.spreadshirt.com/";
 
-        string saveToDirectory;
+        string saveToDirectory = string.Empty;
         string keyWord = string.Empty;
         string category = string.Empty;
         string originText = string.Empty;
+        string fileName = string.Empty;
         int maxPage = 10;
         int imgPerDir = 100;
-        bool isPause = false;
-        int currentIndex = 0;
         ListViewItem lvItem;
+        Func<bool> funcFinish;
 
         DataExportJson dataExportJson;
         DesignCollection dsCollection;
@@ -35,16 +35,23 @@ namespace TshirtPro
         BackgroundWorker bwDownloadImage;
         ManualResetEvent pause;
 
-        public ImageDD(ListViewItem item, string key, string cate, string origin)
+        public ImageDD(ListViewItem item, string key, string cate, string origin, int maxP, int imgPer, string saveTo, Func<bool> func)
         {
             lvItem = item;
             keyWord = key;
+            fileName = Globals.RemoveSpecialCharacter(key);
+
             category = cate;
             originText = origin;
+            maxPage = maxP;
+            imgPerDir = imgPer;
+            saveToDirectory = saveTo + Path.DirectorySeparatorChar + fileName;
+            funcFinish = func;
+
             web = new HtmlWeb();
             pause = new ManualResetEvent(true);
             dsCollection = new DesignCollection();
-            dataExportJson = new DataExportJson();
+            dataExportJson = new DataExportJson(category);
             bwCollectImage = new BackgroundWorker
             {
                 WorkerReportsProgress = true,
@@ -63,6 +70,35 @@ namespace TshirtPro
             bwDownloadImage.RunWorkerCompleted += BwDownloadImage_RunWorkerCompleted;
             bwDownloadImage.ProgressChanged += BwDownloadImage_ProgressChanged;
             bwDownloadImage.DoWork += BwDownloadImage_DoWork;
+        }
+
+        public void StartDownload()
+        {
+            InitDownload();
+        }
+
+        private void InitDownload()
+        {
+            //Create directory
+            string dirPath = saveToDirectory;
+            if (!Directory.Exists(dirPath))
+            {
+                Directory.CreateDirectory(dirPath);
+            }
+
+            bwCollectImage.RunWorkerAsync();
+        }
+
+        public void Pause(bool isPause)
+        {
+            if (isPause)
+            {
+                pause.Reset();
+            }
+            else
+            {
+                pause.Set();
+            }
         }
 
         private void BwCollectImage_DoWork(object sender, DoWorkEventArgs e)
@@ -120,11 +156,10 @@ namespace TshirtPro
             try
             {
                 Random rd = new Random();
-                string keyWordFormat = Globals.RemoveSpecialCharacter(keyWord);
 
                 if (dsCollection.TotalImage <= imgPerDir)
                 {
-                    SaveImageAndExportJson(saveToDirectory, 0, dsCollection.TotalImage, keyWordFormat);
+                    SaveImageAndExportJson(saveToDirectory, 0, dsCollection.TotalImage, fileName);
                 }
                 else
                 {
@@ -142,13 +177,14 @@ namespace TshirtPro
                     {
                         try
                         {
-                            string dirName = string.Format("{0}-{1}", keyWordFormat, i.ToString());
-                            if (Directory.Exists(dirName))
+                            string dirName = string.Format("{0}-{1}", fileName, i.ToString());
+                            string dirPath = string.Format(@"{0}\{1}", saveToDirectory, dirName);
+                            if (Directory.Exists(dirPath))
                             {
                                 dirName += rd.Next(1, 100);
+                                dirPath = string.Format(@"{0}\{1}", saveToDirectory, dirName);
                             }
-
-                            string dirPath = string.Format(@"{0}\{1}", saveToDirectory, dirName);
+                            
                             Directory.CreateDirectory(dirPath);
                             int start = i * imgPerDir;
                             int end = start + imgPerDir;
@@ -225,6 +261,14 @@ namespace TshirtPro
         private void BwDownloadImage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             lvItem.ForeColor = Color.Green;
+            funcFinish();
+        }
+
+        public void Dispose()
+        {
+            bwCollectImage.Dispose();
+            bwDownloadImage.Dispose();
+            pause.Dispose();
         }
     }
 }

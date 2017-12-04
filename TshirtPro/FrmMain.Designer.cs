@@ -45,9 +45,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.lvKeyword = new System.Windows.Forms.ListView();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.btnOpen = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.txtTZLCategory3 = new System.Windows.Forms.TextBox();
@@ -64,6 +61,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.btnOpen = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
             this.lvImage = new System.Windows.Forms.ListView();
             this.colImageUrl = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -225,7 +223,6 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.lvKeyword);
             this.groupBox2.Controls.Add(this.label11);
             this.groupBox2.Controls.Add(this.label9);
             this.groupBox2.Controls.Add(this.txtTZLCategory3);
@@ -239,42 +236,6 @@
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Nội dung file";
-            // 
-            // lvKeyword
-            // 
-            this.lvKeyword.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lvKeyword.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1});
-            this.lvKeyword.FullRowSelect = true;
-            this.lvKeyword.GridLines = true;
-            this.lvKeyword.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            this.lvKeyword.Location = new System.Drawing.Point(6, 121);
-            this.lvKeyword.MultiSelect = false;
-            this.lvKeyword.Name = "lvKeyword";
-            this.lvKeyword.Size = new System.Drawing.Size(374, 180);
-            this.lvKeyword.TabIndex = 9;
-            this.lvKeyword.UseCompatibleStateImageBehavior = false;
-            this.lvKeyword.View = System.Windows.Forms.View.Details;
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "Đường dẫn hình ảnh";
-            this.columnHeader1.Width = 370;
-            // 
-            // btnOpen
-            // 
-            this.btnOpen.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.btnOpen.ImageIndex = 3;
-            this.btnOpen.ImageList = this.imglist;
-            this.btnOpen.Location = new System.Drawing.Point(240, 9);
-            this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(88, 51);
-            this.btnOpen.TabIndex = 4;
-            this.btnOpen.Text = "Đọc File";
-            this.btnOpen.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.btnOpen.UseVisualStyleBackColor = true;
             // 
             // label11
             // 
@@ -452,6 +413,19 @@
             this.label2.TabIndex = 1;
             this.label2.Text = "Số trang tìm (1 - 10):";
             // 
+            // btnOpen
+            // 
+            this.btnOpen.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.btnOpen.ImageIndex = 3;
+            this.btnOpen.ImageList = this.imglist;
+            this.btnOpen.Location = new System.Drawing.Point(240, 9);
+            this.btnOpen.Name = "btnOpen";
+            this.btnOpen.Size = new System.Drawing.Size(88, 51);
+            this.btnOpen.TabIndex = 4;
+            this.btnOpen.Text = "Đọc File";
+            this.btnOpen.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.btnOpen.UseVisualStyleBackColor = true;
+            // 
             // panel4
             // 
             this.panel4.Controls.Add(this.lvImage);
@@ -592,8 +566,6 @@
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.TextBox txtTZLCategory3;
         private System.Windows.Forms.TextBox txtTZLCategory2;
-        private System.Windows.Forms.ListView lvKeyword;
-        private System.Windows.Forms.ColumnHeader columnHeader1;
     }
 }
 

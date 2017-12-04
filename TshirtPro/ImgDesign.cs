@@ -18,7 +18,7 @@ namespace TshirtPro
             Id = id;
             Name = name;
             Url = imageUrlTpl.Replace("{designId}", id);
-            FileName = string.Format("{0}-{1}.png", id, Globals.GetRandomizeString(3));
+            FileName = string.Format("{0}-{1}.png", id, RandomizeString.RandomString(3));
             Success = false;
             Index = index;
         }
