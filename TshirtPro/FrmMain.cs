@@ -15,7 +15,7 @@ namespace TshirtPro
 {
     public partial class FrmMain : Form
     {
-        string itemXPath = "//*[@id='articleTileList']/div";
+        string itemXPath = "//*[@id='articleTileList']/div/div";
         string domain = "https://www.spreadshirt.com/";
         
         string saveToDirectory;
