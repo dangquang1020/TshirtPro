@@ -15,15 +15,17 @@ namespace TshirtPro
 {
     public partial class FrmMain : Form
     {
-        string itemXPath = "//*[@id='articleTileList']/div/div";
-        string domain = "https://www.spreadshirt.com/";
-        
+        string Sdomain = "https://www.spreadshirt.com/";
+        string Tdomain = "https://www.threadless.com/search/?q=";
+
         string saveToDirectory;
         string keyWord = string.Empty;
         int maxPage = 10;
+        int currentPage = 0;
         int imgPerDir = 100;
         bool isPause = false;
         int currentIndex = 0;
+        int dlSource = 2;
 
         List<KeywordCategory> categories;
         DataExportJson dataExportJson;
@@ -32,6 +34,7 @@ namespace TshirtPro
         BackgroundWorker bwCollectImage;
         BackgroundWorker bwDownloadImage;
         ManualResetEvent pause;
+        List<SourcePage> sourcePages;
 
         public FrmMain()
         {
@@ -64,6 +67,36 @@ namespace TshirtPro
             btnOpen.Click += BtnOpen_Click;
             btnStart.Click += BtnStart_Click;
             btnPause.Click += BtnPause_Click;
+
+            SetSourcePageDataSource();
+        }
+
+        private void SetSourcePageDataSource()
+        {
+            sourcePages = new List<SourcePage>();
+            for (int i = 0; i < 3; i++)
+            {
+                string name = "";
+                switch (i)
+                {
+                    case 0:
+                        name = "SpreadShirt";
+                        break;
+                    case 1:
+                        name = "ThreadLess";
+                        break;
+                    case 2:
+                        name = "All";
+                        break;
+                }
+                SourcePage s = new SourcePage(name, i);
+                sourcePages.Add(s);
+            }
+
+            cbSourcePage.DataSource = sourcePages;
+            cbSourcePage.DisplayMember = "Name";
+            cbSourcePage.ValueMember = "Value";
+            cbSourcePage.SelectedValue = 2;
         }
 
         private void BtnPause_Click(object sender, EventArgs e)
@@ -99,6 +132,8 @@ namespace TshirtPro
             pause.Set();
             lvImage.Items.Clear();
             dsCollection.RefreshData();
+            maxPage = 10;
+            currentPage = 0;
         }
 
         private void BtnStart_Click(object sender, EventArgs e)
@@ -129,7 +164,7 @@ namespace TshirtPro
                         InitDataExport();
                         InitNewSearch();
                         keyWord = txtKeyWord.Text.Replace(" ", "+");
-                        maxPage = int.Parse(nuPageNum.Value.ToString());
+                        dlSource = int.Parse(cbSourcePage.SelectedValue.ToString());
                         saveToDirectory = txtDirectoryPath.Text;
                         imgPerDir = int.Parse(nuImgPerDir.Value.ToString());
                         lblStatus.ForeColor = Color.Blue;
@@ -171,7 +206,7 @@ namespace TshirtPro
             InitDataExport();
             InitNewSearch();
             keyWord = txtKeyWord.Text.Replace(" ", "+");
-            maxPage = int.Parse(nuPageNum.Value.ToString());
+            dlSource = int.Parse(cbSourcePage.SelectedValue.ToString());
             saveToDirectory = txtDirectoryPath.Text;
             imgPerDir = int.Parse(nuImgPerDir.Value.ToString());
             lblStatus.ForeColor = Color.Blue;
@@ -195,7 +230,7 @@ namespace TshirtPro
             btnBrowse.Enabled = !isRunning;
             btnOpen.Enabled = !isRunning;
             txtKeyWord.Enabled = !isRunning;
-            nuPageNum.Enabled = !isRunning;
+            cbSourcePage.Enabled = !isRunning;
             pbProgress.Enabled = !isRunning;
         }
 
@@ -259,7 +294,7 @@ namespace TshirtPro
 
                 if(dsCollection.TotalImage <= imgPerDir)
                 {
-                    SaveImageAndExportExcel(saveToDirectory, 0, dsCollection.TotalImage, keyWordFormat);
+                    SaveImageAndExportJson(saveToDirectory, 0, dsCollection.TotalImage, keyWordFormat);
                 }
                 else
                 {
@@ -287,7 +322,7 @@ namespace TshirtPro
                             Directory.CreateDirectory(dirPath);
                             int start = i * imgPerDir;
                             int end = start + imgPerDir;
-                            SaveImageAndExportExcel(dirPath, start, end, dirName);
+                            SaveImageAndExportJson(dirPath, start, end, dirName);
                         }
                         catch (Exception ex)
                         {
@@ -303,7 +338,7 @@ namespace TshirtPro
             }
         }
 
-        private void SaveImageAndExportExcel(string directory, int start, int end, string dirName)
+        private void SaveImageAndExportJson(string directory, int start, int end, string dirName)
         {
             if(start >= dsCollection.TotalImage)
             {
@@ -327,7 +362,15 @@ namespace TshirtPro
                     if (File.Exists(fullPath))
                     {
                         Random rd = new Random();
-                        item.FileName = string.Format("{1}-{2}.png", item.Id, rd.Next(1, 100));
+                        if (!string.IsNullOrEmpty(item.Id))
+                        {
+                            item.FileName = string.Format("{0}-{1}.png", item.Id, rd.Next(1, 100));
+                        }
+                        else
+                        {
+                            item.FileName = string.Format("{0}-{1}.png", item.FileName, rd.Next(1, 100));
+                        }
+                        
                         fullPath = string.Format("{0}\\{1}", directory, item.FileName);
                     }
 
@@ -403,33 +446,14 @@ namespace TshirtPro
         {
             try
             {
-                for(int i = 1; i <= maxPage; i++)
+                if (dlSource == 2 || dlSource == 1)
                 {
-                    string url = domain + keyWord + "+gifts?page=" + i.ToString();
-                    HtmlAgilityPack.HtmlDocument doc = web.Load(url);
-                    HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes(itemXPath);
+                    DownloadFromThreadLess();
+                }
 
-                    if (nodes != null)
-                    {
-                        foreach (HtmlNode node in nodes)
-                        {
-                            pause.WaitOne();
-
-                            string designId = node.GetAttributeValue("data-designid", "");
-                            if(!dsCollection.ListIds.ContainsKey(designId))
-                            {
-                                string name = node.ChildNodes.ElementAt(1).InnerText.Trim();
-                                if (!string.IsNullOrEmpty(designId))
-                                {
-                                    ImgDesign img = dsCollection.AddNewImage(designId, name);
-                                    bwCollectImage.ReportProgress(i, img);
-                                    dsCollection.ListIds.Add(designId, name);
-                                }
-                            }
-                        }
-                    }
-                    
-                    bwCollectImage.ReportProgress(i);
+                if (dlSource == 2 || dlSource == 0)
+                {
+                    DownloadFromSpreadShirt();
                 }
             }
             catch (Exception ex)
@@ -438,9 +462,101 @@ namespace TshirtPro
             }
         }
 
+        private void DownloadFromThreadLess()
+        {
+            string url = Tdomain + keyWord;
+            int totalPage = 0;
+            HtmlAgilityPack.HtmlDocument doc = web.Load(url);
+            //Get total page
+            HtmlNode nav = doc.DocumentNode.SelectSingleNode("//*[@id='search-results-grid']/div[3]/nav/ul/li[8]/a");
+            if (nav != null)
+            {
+                if (!string.IsNullOrEmpty(nav.InnerText))
+                {
+                    totalPage = int.Parse(nav.InnerText);
+                }
+               
+                if (dlSource == 2)
+                {
+                    maxPage += totalPage;
+                }
+
+                for (int i = 1; i < totalPage; i++)
+                {
+                    currentPage++;
+                    if (i != 1)
+                    {
+                        url = Tdomain + keyWord + "&page=" + i.ToString();
+                        doc = web.Load(url);
+                    }
+
+                    IEnumerable<HtmlNode> nodes = doc.DocumentNode.Descendants("div").Where(div => div.HasClass("media-block")).ToArray();
+                    if (nodes != null)
+                    {
+                        foreach (HtmlNode child in nodes)
+                        {
+                            pause.WaitOne();
+
+                            HtmlNode node = child.SelectSingleNode("./a/img");
+                            string name = node.GetAttributeValue("alt", "");
+                            string[] src = node.GetAttributeValue("src", "").Split('?');
+                            string imgUrl = src.Length > 0 ? src[0] : "";
+
+                            if (!dsCollection.ListIds.ContainsKey(imgUrl))
+                            {
+                                if (!string.IsNullOrEmpty(imgUrl) && imgUrl.EndsWith(".png"))
+                                {
+                                    ImgDesign img = dsCollection.AddNewImageThreadLess(imgUrl, name);
+                                    bwCollectImage.ReportProgress(i, img);
+                                    dsCollection.ListIds.Add(imgUrl, name);
+                                }
+                            }
+                        }
+                    }
+
+                    bwCollectImage.ReportProgress(i);
+                }
+            }
+        }
+
+        private void DownloadFromSpreadShirt()
+        {
+            for (int i = 1; i <= 10; i++)
+            {
+                currentPage++;
+                string url = Sdomain + keyWord + "+gifts?page=" + i.ToString();
+                HtmlAgilityPack.HtmlDocument doc = web.Load(url);
+                //HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes(itemXPath);
+                IEnumerable<HtmlNode> nodes = doc.DocumentNode.Descendants("div").Where(div => div.HasClass("gridTile")).ToArray();
+
+                if (nodes != null)
+                {
+                    foreach (HtmlNode child in nodes)
+                    {
+                        pause.WaitOne();
+
+                        HtmlNode node = child.FirstChild;
+                        string designId = node.GetAttributeValue("data-designid", "");
+                        if (!dsCollection.ListIds.ContainsKey(designId))
+                        {
+                            string name = node.ChildNodes.ElementAt(1).InnerText.Trim();
+                            if (!string.IsNullOrEmpty(designId))
+                            {
+                                ImgDesign img = dsCollection.AddNewImage(designId, name);
+                                bwCollectImage.ReportProgress(i, img);
+                                dsCollection.ListIds.Add(designId, name);
+                            }
+                        }
+                    }
+                }
+
+                bwCollectImage.ReportProgress(i);
+            }
+        }
+
         private void BwCollectImage_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            txtPagePercent.Text = string.Format("{0}/{1}", e.ProgressPercentage.ToString(), maxPage);
+            txtPagePercent.Text = string.Format("{0}/{1}", currentPage, maxPage);
             txtImageCount.Text = dsCollection.TotalImage.ToString();
             
             if (lvKeyword.Items.Count > 0)
@@ -448,7 +564,7 @@ namespace TshirtPro
                 lvKeyword.Items[currentIndex].Text = string.Format("{0} === 0/{1}", categories[currentIndex].OriginText, dsCollection.TotalImage);
             }
             
-            pbProgress.Value = CalculatePercent(e.ProgressPercentage, maxPage);
+            pbProgress.Value = CalculatePercent(currentPage, maxPage);
 
             if (e.UserState != null)
             {

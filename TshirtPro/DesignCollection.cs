@@ -27,5 +27,14 @@ namespace TshirtPro
 
             return img;
         }
+
+        public ImgDesign AddNewImageThreadLess(string url, string name)
+        {
+            ImgDesign img = new ImgDesign("", url, name, ListUrl.Count);
+            ListUrl.Add(img);
+            TotalImage++;
+
+            return img;
+        }
     }
 }

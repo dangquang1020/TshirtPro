@@ -45,6 +45,9 @@
             this.label4 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.lvKeyword = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.btnOpen = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.txtTZLCategory3 = new System.Windows.Forms.TextBox();
@@ -56,7 +59,6 @@
             this.txtDirectoryPath = new System.Windows.Forms.TextBox();
             this.txtKeyWord = new System.Windows.Forms.TextBox();
             this.nuImgPerDir = new System.Windows.Forms.NumericUpDown();
-            this.nuPageNum = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -65,18 +67,15 @@
             this.lvImage = new System.Windows.Forms.ListView();
             this.colImageUrl = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1 = new System.Windows.Forms.Panel();
-            this.btnOpen = new System.Windows.Forms.Button();
             this.btnPause = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
-            this.lvKeyword = new System.Windows.Forms.ListView();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.cbSourcePage = new System.Windows.Forms.ComboBox();
             this.statusStrip.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nuImgPerDir)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nuPageNum)).BeginInit();
             this.panel4.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -241,6 +240,42 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Nội dung file";
             // 
+            // lvKeyword
+            // 
+            this.lvKeyword.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lvKeyword.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1});
+            this.lvKeyword.FullRowSelect = true;
+            this.lvKeyword.GridLines = true;
+            this.lvKeyword.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.lvKeyword.Location = new System.Drawing.Point(6, 121);
+            this.lvKeyword.MultiSelect = false;
+            this.lvKeyword.Name = "lvKeyword";
+            this.lvKeyword.Size = new System.Drawing.Size(374, 180);
+            this.lvKeyword.TabIndex = 9;
+            this.lvKeyword.UseCompatibleStateImageBehavior = false;
+            this.lvKeyword.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Đường dẫn hình ảnh";
+            this.columnHeader1.Width = 370;
+            // 
+            // btnOpen
+            // 
+            this.btnOpen.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.btnOpen.ImageIndex = 3;
+            this.btnOpen.ImageList = this.imglist;
+            this.btnOpen.Location = new System.Drawing.Point(15, 69);
+            this.btnOpen.Name = "btnOpen";
+            this.btnOpen.Size = new System.Drawing.Size(83, 46);
+            this.btnOpen.TabIndex = 4;
+            this.btnOpen.Text = "Đọc File";
+            this.btnOpen.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.btnOpen.UseVisualStyleBackColor = true;
+            // 
             // label11
             // 
             this.label11.AutoSize = true;
@@ -292,11 +327,11 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.cbSourcePage);
             this.groupBox1.Controls.Add(this.btnBrowse);
             this.groupBox1.Controls.Add(this.txtDirectoryPath);
             this.groupBox1.Controls.Add(this.txtKeyWord);
             this.groupBox1.Controls.Add(this.nuImgPerDir);
-            this.groupBox1.Controls.Add(this.nuPageNum);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.label3);
@@ -328,9 +363,9 @@
             // 
             // txtKeyWord
             // 
-            this.txtKeyWord.Location = new System.Drawing.Point(163, 19);
+            this.txtKeyWord.Location = new System.Drawing.Point(133, 19);
             this.txtKeyWord.Name = "txtKeyWord";
-            this.txtKeyWord.Size = new System.Drawing.Size(136, 20);
+            this.txtKeyWord.Size = new System.Drawing.Size(166, 20);
             this.txtKeyWord.TabIndex = 0;
             // 
             // nuImgPerDir
@@ -351,28 +386,6 @@
             this.nuImgPerDir.TabIndex = 2;
             this.nuImgPerDir.Value = new decimal(new int[] {
             100,
-            0,
-            0,
-            0});
-            // 
-            // nuPageNum
-            // 
-            this.nuPageNum.Location = new System.Drawing.Point(163, 45);
-            this.nuPageNum.Maximum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.nuPageNum.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.nuPageNum.Name = "nuPageNum";
-            this.nuPageNum.Size = new System.Drawing.Size(136, 20);
-            this.nuPageNum.TabIndex = 2;
-            this.nuPageNum.Value = new decimal(new int[] {
-            10,
             0,
             0,
             0});
@@ -413,9 +426,9 @@
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(12, 48);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(102, 13);
+            this.label2.Size = new System.Drawing.Size(67, 13);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Số trang tìm (1 - 10):";
+            this.label2.Text = "Nguồn Hình:";
             // 
             // panel4
             // 
@@ -458,19 +471,6 @@
             this.panel1.Size = new System.Drawing.Size(441, 66);
             this.panel1.TabIndex = 3;
             // 
-            // btnOpen
-            // 
-            this.btnOpen.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.btnOpen.ImageIndex = 3;
-            this.btnOpen.ImageList = this.imglist;
-            this.btnOpen.Location = new System.Drawing.Point(15, 69);
-            this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(83, 46);
-            this.btnOpen.TabIndex = 4;
-            this.btnOpen.Text = "Đọc File";
-            this.btnOpen.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.btnOpen.UseVisualStyleBackColor = true;
-            // 
             // btnPause
             // 
             this.btnPause.Enabled = false;
@@ -497,28 +497,13 @@
             this.btnStart.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnStart.UseVisualStyleBackColor = true;
             // 
-            // lvKeyword
+            // cbSourcePage
             // 
-            this.lvKeyword.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lvKeyword.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1});
-            this.lvKeyword.FullRowSelect = true;
-            this.lvKeyword.GridLines = true;
-            this.lvKeyword.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            this.lvKeyword.Location = new System.Drawing.Point(6, 121);
-            this.lvKeyword.MultiSelect = false;
-            this.lvKeyword.Name = "lvKeyword";
-            this.lvKeyword.Size = new System.Drawing.Size(374, 180);
-            this.lvKeyword.TabIndex = 9;
-            this.lvKeyword.UseCompatibleStateImageBehavior = false;
-            this.lvKeyword.View = System.Windows.Forms.View.Details;
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "Đường dẫn hình ảnh";
-            this.columnHeader1.Width = 370;
+            this.cbSourcePage.FormattingEnabled = true;
+            this.cbSourcePage.Location = new System.Drawing.Point(133, 45);
+            this.cbSourcePage.Name = "cbSourcePage";
+            this.cbSourcePage.Size = new System.Drawing.Size(166, 21);
+            this.cbSourcePage.TabIndex = 4;
             // 
             // FrmMain
             // 
@@ -544,7 +529,6 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nuImgPerDir)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nuPageNum)).EndInit();
             this.panel4.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -578,7 +562,6 @@
         private System.Windows.Forms.TextBox txtDirectoryPath;
         private System.Windows.Forms.TextBox txtKeyWord;
         private System.Windows.Forms.NumericUpDown nuImgPerDir;
-        private System.Windows.Forms.NumericUpDown nuPageNum;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label3;
@@ -594,6 +577,7 @@
         private System.Windows.Forms.TextBox txtTZLCategory2;
         private System.Windows.Forms.ListView lvKeyword;
         private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ComboBox cbSourcePage;
     }
 }
 

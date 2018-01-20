@@ -22,5 +22,16 @@ namespace TshirtPro
             Success = false;
             Index = index;
         }
+
+        public ImgDesign(string id, string url, string name, int index)
+        {
+            Random rd = new Random();
+            Id = id;
+            Name = name;
+            Url = url;
+            FileName = string.Format("{0}.png", Globals.GetRandomizeString(9));
+            Success = false;
+            Index = index;
+        }
     }
 }

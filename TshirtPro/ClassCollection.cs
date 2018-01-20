@@ -50,4 +50,16 @@ namespace TshirtPro
             return result;
         }
     }
+
+    public class SourcePage
+    {
+        public string Name { get; set; }
+        public int Value { get; set; }
+        public SourcePage(string _name, int _value)
+        {
+            Name = _name;
+            Value = _value;
+        }
+    }
+
 }
