@@ -502,9 +502,12 @@ namespace TshirtPro
                             string[] src = node.GetAttributeValue("src", "").Split('?');
                             string imgUrl = src.Length > 0 ? src[0] : "";
 
+                            HtmlNode ownerNode = child.SelectSingleNode("./div/p[2]/a");
+                            string owner = ownerNode != null ? ownerNode.InnerText.Trim() : "";
+
                             if (!dsCollection.ListIds.ContainsKey(imgUrl))
                             {
-                                if (!string.IsNullOrEmpty(imgUrl) && imgUrl.EndsWith(".png"))
+                                if (!string.IsNullOrEmpty(imgUrl) && imgUrl.EndsWith(".png") && !owner.Contains("@"))
                                 {
                                     ImgDesign img = dsCollection.AddNewImageThreadLess(imgUrl, name);
                                     bwCollectImage.ReportProgress(i, img);
@@ -556,21 +559,28 @@ namespace TshirtPro
 
         private void BwCollectImage_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            txtPagePercent.Text = string.Format("{0}/{1}", currentPage, maxPage);
-            txtImageCount.Text = dsCollection.TotalImage.ToString();
-            
-            if (lvKeyword.Items.Count > 0)
+            try
             {
-                lvKeyword.Items[currentIndex].Text = string.Format("{0} === 0/{1}", categories[currentIndex].OriginText, dsCollection.TotalImage);
-            }
-            
-            pbProgress.Value = CalculatePercent(currentPage, maxPage);
+                txtPagePercent.Text = string.Format("{0}/{1}", currentPage, maxPage);
+                txtImageCount.Text = dsCollection.TotalImage.ToString();
 
-            if (e.UserState != null)
-            {
-                ImgDesign img = (ImgDesign)e.UserState;
-                lvImage.Items.Add((img.Index + 1).ToString() + " : " + img.Name);
+                if (lvKeyword.Items.Count > 0)
+                {
+                    lvKeyword.Items[currentIndex].Text = string.Format("{0} === 0/{1}", categories[currentIndex].OriginText, dsCollection.TotalImage);
+                }
+
+                pbProgress.Value = CalculatePercent(currentPage, maxPage);
+
+                if (e.UserState != null)
+                {
+                    ImgDesign img = (ImgDesign)e.UserState;
+                    lvImage.Items.Add((img.Index + 1).ToString() + " : " + img.Name);
+                }
             }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+            }           
         }
 
         private void BwCollectImage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -595,7 +605,7 @@ namespace TshirtPro
             float fPercent = (fCurrent / fTotal) * 100;
             percent = int.Parse(fPercent.ToString("0"));
 
-            return percent;
+            return percent >= 100 ? 100 : percent;
         }
     }
 }
