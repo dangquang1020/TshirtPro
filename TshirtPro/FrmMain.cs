@@ -26,6 +26,7 @@ namespace TshirtPro
         bool isPause = false;
         int currentIndex = 0;
         int dlSource = 2;
+        int maxPageThreadless = 200;
 
         List<KeywordCategory> categories;
         DataExportJson dataExportJson;
@@ -474,6 +475,7 @@ namespace TshirtPro
                 if (!string.IsNullOrEmpty(nav.InnerText))
                 {
                     totalPage = int.Parse(nav.InnerText);
+                    totalPage = totalPage > maxPageThreadless ? maxPageThreadless : totalPage;
                 }
                
                 if (dlSource == 2)
