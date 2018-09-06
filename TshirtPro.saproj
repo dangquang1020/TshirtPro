@@ -14,7 +14,7 @@
             <Debugging />
         </Options>
         <ApplicationName>ImageDownloader</ApplicationName>
-        <Destination DestinationFileName="..\..\Tshirt\ImageDD-2.9.exe" />
+        <Destination DestinationFileName="..\..\Tshirt\ImageDD-3.0.exe" />
         <Assemblies>
             <Assembly AssemblyName="TshirtPro, Culture=neutral, PublicKeyToken=null">
                 <Merging>

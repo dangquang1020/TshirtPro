@@ -10,6 +10,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace TshirtPro
 {
@@ -20,13 +21,15 @@ namespace TshirtPro
 
         string saveToDirectory;
         string keyWord = string.Empty;
-        int maxPage = 10;
+        int maxPage = 0;
         int currentPage = 0;
         int imgPerDir = 100;
         bool isPause = false;
         int currentIndex = 0;
         int dlSource = 2;
         int maxPageThreadless = 200;
+        bool browserLoaded = false;
+        string browserContent = string.Empty;
 
         List<KeywordCategory> categories;
         DataExportJson dataExportJson;
@@ -36,13 +39,23 @@ namespace TshirtPro
         BackgroundWorker bwDownloadImage;
         ManualResetEvent pause;
         List<SourcePage> sourcePages;
+        WebBrowser browser;
+        List<string> tmKeys;
 
         public FrmMain()
         {
             InitializeComponent();
 
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls
+        | SecurityProtocolType.Tls11
+        | SecurityProtocolType.Tls12
+        | SecurityProtocolType.Ssl3;
+
+            browser = new WebBrowser();
             categories = new List<KeywordCategory>();
+            tmKeys = new List<string>();
             web = new HtmlWeb();
+            web.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
             pause = new ManualResetEvent(true);
             dsCollection = new DesignCollection();
             dataExportJson = new DataExportJson();
@@ -97,7 +110,7 @@ namespace TshirtPro
             cbSourcePage.DataSource = sourcePages;
             cbSourcePage.DisplayMember = "Name";
             cbSourcePage.ValueMember = "Value";
-            cbSourcePage.SelectedValue = 2;
+            cbSourcePage.SelectedValue = 1;
         }
 
         private void BtnPause_Click(object sender, EventArgs e)
@@ -119,7 +132,7 @@ namespace TshirtPro
                 btnPause.ImageIndex = 1;
                 pause.Set();
             }
-            
+
         }
 
         private void InitNewSearch()
@@ -133,7 +146,7 @@ namespace TshirtPro
             pause.Set();
             lvImage.Items.Clear();
             dsCollection.RefreshData();
-            maxPage = 10;
+            maxPage = 0;
             currentPage = 0;
         }
 
@@ -194,7 +207,7 @@ namespace TshirtPro
             {
                 return;
             }
-            
+
             txtCategory.Text = categories[currentIndex].Category;
             txtKeyWord.Text = categories[currentIndex].Keyword;
             string dirPath = Application.StartupPath + Path.DirectorySeparatorChar + categories[currentIndex].Keyword;
@@ -251,7 +264,7 @@ namespace TshirtPro
                         lvKeyword.Items.Clear();
                         categories.Clear();
                         string[] lines = File.ReadAllLines(ofd.FileName);
-                        foreach(string line in lines)
+                        foreach (string line in lines)
                         {
                             string[] arr = line.Split(';');
                             if (arr.Length > 1)
@@ -259,7 +272,7 @@ namespace TshirtPro
                                 KeywordCategory cate = new KeywordCategory(arr[0].Trim(), arr[1].Trim(), line);
                                 categories.Add(cate);
                                 lvKeyword.Items.Add(line);
-                            }                            
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -293,14 +306,14 @@ namespace TshirtPro
                 Random rd = new Random();
                 string keyWordFormat = Globals.RemoveSpecialCharacter(keyWord);
 
-                if(dsCollection.TotalImage <= imgPerDir)
+                if (dsCollection.TotalImage <= imgPerDir)
                 {
                     SaveImageAndExportJson(saveToDirectory, 0, dsCollection.TotalImage, keyWordFormat);
                 }
                 else
                 {
                     int totalDirectory = 0;
-                    if(dsCollection.TotalImage % imgPerDir == 0)
+                    if (dsCollection.TotalImage % imgPerDir == 0)
                     {
                         totalDirectory = (dsCollection.TotalImage / imgPerDir);
                     }
@@ -309,7 +322,7 @@ namespace TshirtPro
                         totalDirectory = (dsCollection.TotalImage / imgPerDir) + 1;
                     }
 
-                    for(int i = 0; i < totalDirectory; i++)
+                    for (int i = 0; i < totalDirectory; i++)
                     {
                         try
                         {
@@ -331,9 +344,9 @@ namespace TshirtPro
                         }
                     }
                 }
-                
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ShowError(ex.Message);
             }
@@ -341,12 +354,12 @@ namespace TshirtPro
 
         private void SaveImageAndExportJson(string directory, int start, int end, string dirName)
         {
-            if(start >= dsCollection.TotalImage)
+            if (start >= dsCollection.TotalImage)
             {
                 return;
             }
 
-            if(end > dsCollection.TotalImage)
+            if (end > dsCollection.TotalImage)
             {
                 end = dsCollection.TotalImage;
             }
@@ -371,7 +384,7 @@ namespace TshirtPro
                         {
                             item.FileName = string.Format("{0}-{1}.png", item.FileName, rd.Next(1, 100));
                         }
-                        
+
                         fullPath = string.Format("{0}\\{1}", directory, item.FileName);
                     }
 
@@ -399,25 +412,33 @@ namespace TshirtPro
 
         private void BwDownloadImage_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            pbProgress.Value = CalculatePercent(e.ProgressPercentage, dsCollection.TotalImage);
-            txtSuccess.Text = dsCollection.SuccessCount.ToString();
-            txtError.Text = dsCollection.ErrorCount.ToString();
-
-            if (lvKeyword.Items.Count > 0)
+            try
             {
-                lvKeyword.Items[currentIndex].Text = string.Format("{0} === {1}/{2}", categories[currentIndex].OriginText, dsCollection.SuccessCount + dsCollection.ErrorCount, dsCollection.TotalImage);
+                pbProgress.Value = CalculatePercent(e.ProgressPercentage, dsCollection.TotalImage);
+                txtSuccess.Text = dsCollection.SuccessCount.ToString();
+                txtError.Text = dsCollection.ErrorCount.ToString();
+
+                if (lvKeyword.Items.Count > 0)
+                {
+                    lvKeyword.Items[currentIndex].Text = string.Format("{0} === {1}/{2}", categories[currentIndex].OriginText, dsCollection.SuccessCount + dsCollection.ErrorCount, dsCollection.TotalImage);
+                }
+
+                int index = e.ProgressPercentage - 1;
+                lvImage.EnsureVisible(index);
+                if (bool.Parse(e.UserState.ToString()))
+                {
+                    ListViewItem item = lvImage.Items[index];
+                    item.ForeColor = Color.Green;
+                }
+                else
+                {
+                    ListViewItem item = lvImage.Items[index];
+                    item.ForeColor = Color.Red;
+                }
             }
-
-            int index = e.ProgressPercentage - 1;
-            lvImage.EnsureVisible(index);
-            if (bool.Parse(e.UserState.ToString()))
+            catch (Exception ex)
             {
-                ListViewItem item = lvImage.Items[index];
-                item.ForeColor = Color.Green;
-            } else
-            {
-                ListViewItem item = lvImage.Items[index];
-                item.ForeColor = Color.Red;
+                ShowError(ex.Message);
             }
         }
 
@@ -466,50 +487,55 @@ namespace TshirtPro
         private void DownloadFromThreadLess()
         {
             string url = Tdomain + keyWord;
-            int totalPage = 0;
+            int totalPage = 1;
             HtmlAgilityPack.HtmlDocument doc = web.Load(url);
+
+            //url = "https://www.teezily.com/en-gb/marketplace?utf8=%E2%9C%93&query=dog";
+            //HtmlAgilityPack.HtmlDocument doc = web.Load(url);
+
+            HtmlNode container = doc.DocumentNode.SelectSingleNode("//*[@id='hits-container']");
             //Get total page
             HtmlNode nav = doc.DocumentNode.SelectSingleNode("//*[@id='search-results-grid']/div[3]/nav/ul/li[8]/a");
             if (nav != null)
             {
                 if (!string.IsNullOrEmpty(nav.InnerText))
                 {
-                    totalPage = int.Parse(nav.InnerText);
+                    int.TryParse(nav.InnerText, out totalPage);
                     totalPage = totalPage > maxPageThreadless ? maxPageThreadless : totalPage;
                 }
-               
-                if (dlSource == 2)
+            }
+
+            maxPage += totalPage;
+
+            for (int i = 1; i <= totalPage; i++)
+            {
+                currentPage++;
+                if (i != 1)
                 {
-                    maxPage += totalPage;
+                    url = Tdomain + keyWord + "&page=" + i.ToString();
+                    doc = web.Load(url);
                 }
 
-                for (int i = 1; i < totalPage; i++)
+                IEnumerable<HtmlNode> nodes = doc.DocumentNode.Descendants("div").Where(div => div.HasClass("media-card")).ToArray();
+                if (nodes != null)
                 {
-                    currentPage++;
-                    if (i != 1)
+                    foreach (HtmlNode child in nodes)
                     {
-                        url = Tdomain + keyWord + "&page=" + i.ToString();
-                        doc = web.Load(url);
-                    }
+                        pause.WaitOne();
 
-                    IEnumerable<HtmlNode> nodes = doc.DocumentNode.Descendants("div").Where(div => div.HasClass("media-block")).ToArray();
-                    if (nodes != null)
-                    {
-                        foreach (HtmlNode child in nodes)
+                        HtmlNode node = child.SelectSingleNode("./div[1]/a/img");
+                        string name = node.GetAttributeValue("alt", "");
+                        string[] src = node.GetAttributeValue("src", "").Split('?');
+                        string imgUrl = src.Length > 0 ? src[0] : "";
+
+                        HtmlNode ownerNode = child.SelectSingleNode("./div[2]/div/div/p[1]/a");
+                        string owner = ownerNode != null ? ownerNode.InnerText.Trim() : "";
+
+                        if (!dsCollection.ListIds.ContainsKey(imgUrl))
                         {
-                            pause.WaitOne();
-
-                            HtmlNode node = child.SelectSingleNode("./a/img");
-                            string name = node.GetAttributeValue("alt", "");
-                            string[] src = node.GetAttributeValue("src", "").Split('?');
-                            string imgUrl = src.Length > 0 ? src[0] : "";
-
-                            HtmlNode ownerNode = child.SelectSingleNode("./div/p[2]/a");
-                            string owner = ownerNode != null ? ownerNode.InnerText.Trim() : "";
-
-                            if (!dsCollection.ListIds.ContainsKey(imgUrl))
+                            if (!string.IsNullOrEmpty(imgUrl) && imgUrl.EndsWith(".png") && !owner.Contains("@"))
                             {
-                                if (!string.IsNullOrEmpty(imgUrl) && imgUrl.EndsWith(".png") && !owner.Contains("@"))
+                                if (!ContainTradeMarkKey(name))
                                 {
                                     ImgDesign img = dsCollection.AddNewImageThreadLess(imgUrl, name);
                                     bwCollectImage.ReportProgress(i, img);
@@ -518,10 +544,19 @@ namespace TshirtPro
                             }
                         }
                     }
-
-                    bwCollectImage.ReportProgress(i);
                 }
+
+                bwCollectImage.ReportProgress(i);
             }
+        }
+
+        private bool ContainTradeMarkKey(string title)
+        {
+            bool isContain = false;
+
+            isContain = tmKeys.Any(title.ToLower().Contains);
+
+            return isContain;
         }
 
         private void DownloadFromSpreadShirt()
@@ -530,7 +565,18 @@ namespace TshirtPro
             {
                 currentPage++;
                 string url = Sdomain + keyWord + "+gifts?page=" + i.ToString();
-                HtmlAgilityPack.HtmlDocument doc = web.Load(url);
+
+                browserLoaded = false;
+                browser.Refresh();
+                browser.Navigate(url);
+
+                while (!browserLoaded)
+                {
+                    Application.DoEvents();
+                }
+
+                HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+                doc.Load(new StringReader(browser.Document.Body.OuterHtml));
                 //HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes(itemXPath);
                 IEnumerable<HtmlNode> nodes = doc.DocumentNode.Descendants("div").Where(div => div.HasClass("gridTile")).ToArray();
 
@@ -541,14 +587,16 @@ namespace TshirtPro
                         pause.WaitOne();
 
                         HtmlNode node = child.FirstChild;
-                        string designId = node.GetAttributeValue("data-designid", "");
+                        string link = node.FirstChild.GetAttributeValue("href", "");
+
+                        string designId = GetDesignIdOfSpreadShirt(link);
                         if (!dsCollection.ListIds.ContainsKey(designId))
                         {
                             string name = node.ChildNodes.ElementAt(1).InnerText.Trim();
                             if (!string.IsNullOrEmpty(designId))
                             {
                                 ImgDesign img = dsCollection.AddNewImage(designId, name);
-                                bwCollectImage.ReportProgress(i, img);
+                                //bwCollectImage.ReportProgress(i, img);
                                 dsCollection.ListIds.Add(designId, name);
                             }
                         }
@@ -557,6 +605,46 @@ namespace TshirtPro
 
                 bwCollectImage.ReportProgress(i);
             }
+        }
+
+        private string GetDesignIdOfSpreadShirt(string imgSrc)
+        {
+            string designId = string.Empty;
+
+            try
+            {
+                int lastIndex = imgSrc.LastIndexOf('-');
+                if (lastIndex == -1) return designId;
+
+                imgSrc = imgSrc.Substring(lastIndex + 1);
+
+                bool beginId = false;
+                for (int i = imgSrc.Length - 1; i >= 0; i--)
+                {
+                    if (imgSrc[i] == 'S')
+                    {
+                        beginId = true;
+                    }
+                    else if (beginId && imgSrc[i] == 'D')
+                    {
+                        beginId = false;
+                        break;
+                    }
+                    else if (beginId)
+                    {
+                        if (Char.IsDigit(imgSrc[i]))
+                        {
+                            designId = imgSrc[i] + designId;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+            }
+
+            return designId;
         }
 
         private void BwCollectImage_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -582,7 +670,7 @@ namespace TshirtPro
             catch (Exception ex)
             {
                 ShowError(ex.Message);
-            }           
+            }
         }
 
         private void BwCollectImage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -596,6 +684,7 @@ namespace TshirtPro
         {
             saveToDirectory = Application.StartupPath;
             txtDirectoryPath.Text = saveToDirectory;
+            LoadTradeMarkKeys();
         }
 
         private int CalculatePercent(int current, int total)
@@ -608,6 +697,25 @@ namespace TshirtPro
             percent = int.Parse(fPercent.ToString("0"));
 
             return percent >= 100 ? 100 : percent;
+        }
+
+        private void LoadTradeMarkKeys()
+        {
+            try
+            {
+                string[] lines = File.ReadAllLines("TM-key.txt");
+                foreach (string line in lines)
+                {
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        tmKeys.Add(line.ToLower());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: Could not read trade mark keys file. " + ex.Message);
+            }
         }
     }
 }
