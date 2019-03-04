@@ -495,7 +495,7 @@ namespace TshirtPro
 
             HtmlNode container = doc.DocumentNode.SelectSingleNode("//*[@id='hits-container']");
             //Get total page
-            HtmlNode nav = doc.DocumentNode.SelectSingleNode("//*[@id='search-results-grid']/div[3]/nav/ul/li[8]/a");
+            HtmlNode nav = doc.DocumentNode.SelectSingleNode("//*[@id='search-results-grid']/div[2]/nav/ul/li[8]/a");
             if (nav != null)
             {
                 if (!string.IsNullOrEmpty(nav.InnerText))
@@ -703,12 +703,15 @@ namespace TshirtPro
         {
             try
             {
-                string[] lines = File.ReadAllLines("TM-key.txt");
-                foreach (string line in lines)
+                if (File.Exists("TM-key.txt"))
                 {
-                    if (!string.IsNullOrEmpty(line))
+                    string[] lines = File.ReadAllLines("TM-key.txt");
+                    foreach (string line in lines)
                     {
-                        tmKeys.Add(line.ToLower());
+                        if (!string.IsNullOrEmpty(line))
+                        {
+                            tmKeys.Add(line.ToLower());
+                        }
                     }
                 }
             }
