@@ -32,7 +32,6 @@ namespace TshirtPro
         int currentIndex = 0;
         int dlSource = 2;
         int maxPageThreadless = 200;
-        bool browserLoaded = false;
         string browserContent = string.Empty;
 
         List<KeywordCategory> categories;
