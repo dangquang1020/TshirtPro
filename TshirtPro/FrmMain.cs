@@ -12,6 +12,10 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+using Flurl;
+using Flurl.Http;
+using System.Threading.Tasks;
+
 namespace TshirtPro
 {
     public partial class FrmMain : Form
@@ -55,7 +59,8 @@ namespace TshirtPro
             categories = new List<KeywordCategory>();
             tmKeys = new List<string>();
             web = new HtmlWeb();
-            web.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36";
+            web.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36";
+            web.UseCookies = true;
             pause = new ManualResetEvent(true);
             dsCollection = new DesignCollection();
             dataExportJson = new DataExportJson();
@@ -73,7 +78,7 @@ namespace TshirtPro
             Load += FrmMain_Load;
             bwCollectImage.RunWorkerCompleted += BwCollectImage_RunWorkerCompleted;
             bwCollectImage.ProgressChanged += BwCollectImage_ProgressChanged;
-            bwCollectImage.DoWork += BwCollectImage_DoWork;
+            bwCollectImage.DoWork += BwCollectImage_DoWorkAsync;
             bwDownloadImage.RunWorkerCompleted += BwDownloadImage_RunWorkerCompleted;
             bwDownloadImage.ProgressChanged += BwDownloadImage_ProgressChanged;
             bwDownloadImage.DoWork += BwDownloadImage_DoWork;
@@ -464,7 +469,7 @@ namespace TshirtPro
             }));
         }
 
-        private void BwCollectImage_DoWork(object sender, DoWorkEventArgs e)
+        private void BwCollectImage_DoWorkAsync(object sender, DoWorkEventArgs e)
         {
             try
             {
@@ -475,7 +480,7 @@ namespace TshirtPro
 
                 if (dlSource == 2 || dlSource == 0)
                 {
-                    DownloadFromSpreadShirt();
+                    DownloadFromSpreadShirtAsync();
                 }
             }
             catch (Exception ex)
@@ -506,6 +511,7 @@ namespace TshirtPro
             }
 
             maxPage += totalPage;
+            //totalPage = 1;
 
             for (int i = 1; i <= totalPage; i++)
             {
@@ -537,7 +543,7 @@ namespace TshirtPro
                             {
                                 if (!ContainTradeMarkKey(name))
                                 {
-                                    ImgDesign img = dsCollection.AddNewImageThreadLess(imgUrl, name);
+                                    ImgDesign img = dsCollection.AddNewImageThreadLess($"{imgUrl}?v=4", name);
                                     bwCollectImage.ReportProgress(i, img);
                                     dsCollection.ListIds.Add(imgUrl, name);
                                 }
@@ -559,26 +565,26 @@ namespace TshirtPro
             return isContain;
         }
 
-        private void DownloadFromSpreadShirt()
+        private async void DownloadFromSpreadShirtAsync()
         {
             for (int i = 1; i <= 10; i++)
             {
                 currentPage++;
                 string url = Sdomain + keyWord + "+gifts?page=" + i.ToString();
 
-                browserLoaded = false;
-                browser.Refresh();
-                browser.Navigate(url);
-
-                while (!browserLoaded)
-                {
-                    Application.DoEvents();
-                }
+                string getResp = await GetStringFromUrl(url);
 
                 HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-                doc.Load(new StringReader(browser.Document.Body.OuterHtml));
-                //HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes(itemXPath);
-                IEnumerable<HtmlNode> nodes = doc.DocumentNode.Descendants("div").Where(div => div.HasClass("gridTile")).ToArray();
+
+                //Convert the Raw HTML into an HTML Object
+                doc.LoadHtml(getResp);
+
+                HtmlNode parent = doc.DocumentNode.SelectSingleNode("//*[@id='articleTileList']");
+                if (parent == null)
+                {
+                    continue;
+                }
+                IEnumerable<HtmlNode> nodes = parent.SelectNodes("./div").ToArray();
 
                 if (nodes != null)
                 {
@@ -587,7 +593,9 @@ namespace TshirtPro
                         pause.WaitOne();
 
                         HtmlNode node = child.FirstChild;
-                        string link = node.FirstChild.GetAttributeValue("href", "");
+                        IEnumerable<HtmlNode> imgList = node.Descendants("img");
+                        HtmlNode imgNode = imgList.ElementAtOrDefault(0);
+                        string link = imgNode.GetAttributeValue("src", "");
 
                         string designId = GetDesignIdOfSpreadShirt(link);
                         if (!dsCollection.ListIds.ContainsKey(designId))
@@ -607,16 +615,25 @@ namespace TshirtPro
             }
         }
 
+        private async Task<string> GetStringFromUrl(string url)
+        {
+            var getResp = await url
+                .WithHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36")
+                .GetStringAsync();
+            return getResp;
+        }
+
         private string GetDesignIdOfSpreadShirt(string imgSrc)
         {
             string designId = string.Empty;
 
             try
             {
-                int lastIndex = imgSrc.LastIndexOf('-');
-                if (lastIndex == -1) return designId;
+                int sIndex = imgSrc.IndexOf("products/");
+                int eIndex = imgSrc.IndexOf("/views");
+                if (sIndex == -1 || eIndex == -1) return designId;
 
-                imgSrc = imgSrc.Substring(lastIndex + 1);
+                imgSrc = imgSrc.Substring(sIndex + 9, eIndex - sIndex - 9);
 
                 bool beginId = false;
                 for (int i = imgSrc.Length - 1; i >= 0; i--)

@@ -55,6 +55,7 @@
             this.txtTZLCategory1 = new System.Windows.Forms.TextBox();
             this.txtCategory = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cbSourcePage = new System.Windows.Forms.ComboBox();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.txtDirectoryPath = new System.Windows.Forms.TextBox();
             this.txtKeyWord = new System.Windows.Forms.TextBox();
@@ -69,7 +70,6 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnPause = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
-            this.cbSourcePage = new System.Windows.Forms.ComboBox();
             this.statusStrip.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -344,6 +344,14 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Tìm kiếm";
             // 
+            // cbSourcePage
+            // 
+            this.cbSourcePage.FormattingEnabled = true;
+            this.cbSourcePage.Location = new System.Drawing.Point(133, 45);
+            this.cbSourcePage.Name = "cbSourcePage";
+            this.cbSourcePage.Size = new System.Drawing.Size(166, 21);
+            this.cbSourcePage.TabIndex = 4;
+            // 
             // btnBrowse
             // 
             this.btnBrowse.Location = new System.Drawing.Point(305, 87);
@@ -367,6 +375,7 @@
             this.txtKeyWord.Name = "txtKeyWord";
             this.txtKeyWord.Size = new System.Drawing.Size(166, 20);
             this.txtKeyWord.TabIndex = 0;
+            this.txtKeyWord.Text = "dog";
             // 
             // nuImgPerDir
             // 
@@ -497,14 +506,6 @@
             this.btnStart.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnStart.UseVisualStyleBackColor = true;
             // 
-            // cbSourcePage
-            // 
-            this.cbSourcePage.FormattingEnabled = true;
-            this.cbSourcePage.Location = new System.Drawing.Point(133, 45);
-            this.cbSourcePage.Name = "cbSourcePage";
-            this.cbSourcePage.Size = new System.Drawing.Size(166, 21);
-            this.cbSourcePage.TabIndex = 4;
-            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -518,6 +519,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(800, 550);
             this.Name = "FrmMain";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Image Downloader";
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
